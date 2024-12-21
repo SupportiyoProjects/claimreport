@@ -19,15 +19,15 @@ function App() {
         <FormProvider>
           <Routes>
 
-            <Route path="/sign-in" element={<NewReport />} />
+            <Route path="/sign-in" element={<Home />} />
             <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/home" element={<Home />} />
-            {/* <Route path="/new-report" element={<NewReport />} /> */}
+            {/* <Route path="/home" element={<Home />} /> */}
+            <Route path="/new-report" element={<NewReport />} />
             <Route path="/current-status" element={<CurrentStatus />} />
             <Route path="/completed-reports" element={<CompletedReports />} />
             <Route path="/insured-information" element={<InsuredInformation />} />
             <Route path="/claim-details" element={<ClaimDetails />} />
-            <Route path="/" element={<Navigate to="/sign-in" />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
 
           </Routes>
         </FormProvider>
