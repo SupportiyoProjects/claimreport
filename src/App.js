@@ -13,7 +13,6 @@ import AdjusterDashboard from './screens/Adjuster/AdjusterDashboard';
 import { FormProvider } from './screens/context/index';
 import InsuredInformation from './Report/InsuredInformation';
 import ClaimDetails from './Report/ClaimDetails';
-import { FormProvider } from './screens/context/index';
 
 
 function App() {

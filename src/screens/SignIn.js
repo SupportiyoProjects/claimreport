@@ -11,8 +11,12 @@ const SignIn = () => {
     e.preventDefault();
 
     if (email === "safeeralpha@gmail.com") {
+
       navigate("/admin");
-    } else {
+    } 
+    
+    
+    else {
       try {
         const response = await fetch(
           "http://localhost:5000/api/adjusters/login",
