@@ -39,7 +39,62 @@ async function connectToDatabase() {
   }
 }
 
+app.get('/api/Client/count', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    const count = await collection.find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json({ count: count.length });
+  } catch (error) {
+    console.error("Error getting client count:", error);
+    res.status(500).json({ error: 'Failed to get client count' });
+  } finally {
+    await client.close();
+  }
+});
+
+// Add endpoint for specific email count
+app.get('/api/Client/count/:email', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    const count = await collection.find({
+      "email": req.params.email
+    }).toArray();
+
+    res.json({ count: count.length });
+  } catch (error) {
+    console.error("Error getting client count:", error);
+    res.status(500).json({ error: 'Failed to get client count' });
+  } finally {
+    await client.close();
+  }
+});
+
 // API Endpoints
+app.post('/api/insert', async (req, res) => {
+  const data = req.body; // Get data from the request body
+  console.log("Incoming data:", data); // Log incoming data
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports"); // Use the correct database name
+    const collection = database.collection("Client"); // Specify the collection name
+    const result = await collection.insertOne(data); // Insert the data
+    res.status(201).json({ message: 'Data inserted successfully', id: result.insertedId });
+  } catch (error) {
+    console.error("Error inserting data:", error); // Log the error
+    res.status(500).json({ message: 'Error inserting data', error: error.message }); // Send error message
+  } finally {
+    await client.close(); // Ensure the client closes after operation
+  }
+});
 
 // Create Adjuster
 app.post('/api/adjusters', async (req, res) => {
@@ -812,3 +867,20 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
       });
     }
   });
+// app.get('/api/Client/count/:email', async (req, res) => {
+//   try {
+//     await client.connect();
+//     const database = client.db("ClaimReports");
+//     const collection = database.collection("Client");
+    
+//     const count = await collection.countDocuments({
+//       "insured.email": req.params.email
+//     });
+//     res.json({ count });
+//   } catch (error) {
+//     console.error("Error getting client count:", error);
+//     res.status(500).json({ error: 'Failed to get client count' });
+//   } finally {
+//     await client.close();
+//   }
+// });
