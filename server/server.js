@@ -685,3 +685,130 @@ app.post('/api/adjusters', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch adjuster data' });
     }
   });
+
+  // Example Express.js route
+app.put('/clients/:id/progress', async (req, res) => {
+    const { id } = req.params;
+    const { progress } = req.body;
+  
+    try {
+      await Client.updateOne({ _id: id }, { progress });
+      res.status(200).send({ message: 'Progress updated successfully' });
+    } catch (error) {
+      res.status(500).send({ message: 'Error updating progress', error });
+    }
+  });
+
+  app.put('/api/clients/:clientId/progress', async (req, res) => {
+    const { clientId } = req.params;
+    const { progress } = req.body;
+  
+    try {
+      const database = client.db(DB_NAME);
+      const clientsCollection = database.collection('clients');
+  
+      const result = await clientsCollection.updateOne(
+        { _id: new ObjectId(clientId) },
+        { $set: { progress } }
+      );
+  
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+  
+      res.json({ message: 'Progress updated successfully' });
+    } catch (error) {
+      console.error("Error updating progress:", error);
+      res.status(500).json({ error: 'Failed to update progress' });
+    }
+  });
+
+  // Update client progress within adjuster's document
+app.put('/api/adjusters/clients/:clientId/progress', async (req, res) => {
+    const { clientId } = req.params;
+    const { progress, adjusterId } = req.body;
+  
+    try {
+      const database = client.db(DB_NAME);
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
+  
+      const result = await adjustersCollection.updateOne(
+        { 
+          _id: new ObjectId(adjusterId),
+          'clients._id': new ObjectId(clientId)
+        },
+        { 
+          $set: { 
+            'clients.$.insured.progress': progress
+          }
+        }
+      );
+  
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Client or Adjuster not found' });
+      }
+  
+      res.json({ 
+        message: 'Progress updated successfully',
+        progress 
+      });
+    } catch (error) {
+      console.error("Error updating client progress:", error);
+      res.status(500).json({ error: 'Failed to update progress' });
+    }
+  });
+
+  // Add this endpoint to update client progress
+app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, res) => {
+    const { adjusterId, clientId } = req.params;
+    const { progress } = req.body;
+  
+    try {
+      const database = client.db(DB_NAME);
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
+  
+      console.log('Updating progress:', { adjusterId, clientId, progress });
+  
+      const result = await adjustersCollection.updateOne(
+        { 
+          _id: new ObjectId(adjusterId),
+          'clients._id': new ObjectId(clientId)
+        },
+        { 
+          $set: { 
+            'clients.$.insured.progress': progress
+          }
+        }
+      );
+  
+      if (result.matchedCount === 0) {
+        console.log('No matching document found');
+        return res.status(404).json({ 
+          error: 'Client or Adjuster not found',
+          details: { adjusterId, clientId, progress }
+        });
+      }
+  
+      if (result.modifiedCount === 0) {
+        console.log('Document matched but not modified');
+        return res.status(400).json({ 
+          error: 'No changes made',
+          details: { adjusterId, clientId, progress }
+        });
+      }
+  
+      console.log('Update successful:', result);
+      res.json({ 
+        message: 'Progress updated successfully',
+        progress,
+        modifiedCount: result.modifiedCount
+      });
+  
+    } catch (error) {
+      console.error("Error updating client progress:", error);
+      res.status(500).json({ 
+        error: 'Failed to update progress',
+        details: error.message
+      });
+    }
+  });

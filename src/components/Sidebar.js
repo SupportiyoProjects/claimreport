@@ -7,7 +7,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'current', label: 'Home' },
     { id: 'completed', label: 'Completed Tasks' },
-    { id: 'allocate', label: 'Allocate Tasks' },
+    { id: 'allocate', label: 'Allocated Tasks' },
     { id: 'adjusters', label: 'Adjusters List' },
   ];
 
