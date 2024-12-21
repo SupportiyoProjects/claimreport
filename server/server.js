@@ -38,23 +38,19 @@ async function connectToDatabase() {
     process.exit(1); // Exit if cannot connect to database
   }
 }
+connectToDatabase();
 
+// Endpoint to get total client count
 app.get('/api/client/count', async (req, res) => {
   try {
-    await client.connect();
     const database = client.db("ClaimReports");
     const collection = database.collection("Client");
     
-    const count = await collection.find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    res.json({ count: count.length });
+    const count = await collection.countDocuments(); // Get total count of documents
+    res.json({ count });
   } catch (error) {
     console.error("Error getting client count:", error);
     res.status(500).json({ error: 'Failed to get client count' });
-  } finally {
-    await client.close();
   }
 });
 
@@ -66,7 +62,7 @@ app.get('/api/Client/count/:email', async (req, res) => {
     const collection = database.collection("Client");
     
     const count = await collection.find({
-      "email": req.params.email
+      "insured.email": req.params.email
     }).toArray();
 
     res.json({ count: count.length });
@@ -867,3 +863,39 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
       });
     }
   });
+
+// Add this new endpoint to get client count
+app.get('/api/client/count  ', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    const count = await collection.countDocuments();
+    res.json({ count });
+  } catch (error) {
+    console.error("Error getting client count:", error);
+    res.status(500).json({ error: 'Failed to get client count' });
+  } finally {
+    await client.close();
+  }
+});
+
+// Endpoint to get client count by email
+app.get('/api/client/count/:email', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    const count = await collection.countDocuments({
+      "insured.email": req.params.email // Adjust the field based on your document structure
+    });
+    res.json({ count });
+  } catch (error) {
+    console.error("Error getting client count by email:", error);
+    res.status(500).json({ error: 'Failed to get client count by email' });
+  } finally {
+    await client.close();
+  }
+});

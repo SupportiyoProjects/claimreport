@@ -8,34 +8,24 @@ export default function Home() {
   const [totalCount, setTotalCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
   const email = 'aliyanamir15@gmail.com';
-  
+
+
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchTotalCount = async () => {
       try {
-        // Fetch total count
-        const totalResponse = await axios.get('http://localhost:5000/api/Client/count');
-        if (totalResponse.data && totalResponse.data.count) {
-          setTotalCount(totalResponse.data.count);
-        }
+        // Fetch total count of clients
+        const response = await axios.get('http://localhost:5000/api/client/count');
+        setTotalCount(response.data.count);
 
         // Fetch count for specific email
-        const userResponse = await axios.get(`http://localhost:5000/api/Client/count/${email}`);
-        if (userResponse.data && userResponse.data.count) {
-          setUserCount(userResponse.data.count);
-        }
+        const userResponse = await axios.get(`http://localhost:5000/api/client/count/${email}`);
+        setUserCount(userResponse.data.count);
       } catch (error) {
-        console.error("Error fetching counts:", error);
-        // Log more details about the error
-        if (error.response) {
-          console.error("Response data:", error.response.data);
-          console.error("Response status:", error.response.status);
-        }
-        setTotalCount(0);
-        setUserCount(0);
+        console.error("Error fetching total client count:", error);
       }
     };
 
-    fetchCounts();
+    fetchTotalCount();
   }, []);
 
   const buttons = [
@@ -62,14 +52,12 @@ export default function Home() {
         <section className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Existing Reports</h2>
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="space-y-2">
-              <p className="text-gray-600">
-                Your reports: {userCount}
-              </p>
-              <p className="text-sm text-gray-500">
-                Total reports in system: {totalCount}
-              </p>
-            </div>
+            <p className="text-gray-600">
+              Total reports in the system: {totalCount}
+            </p>
+            <p className="text-gray-600">
+              Your reports: {userCount}
+            </p>
           </div>
         </section>
 
