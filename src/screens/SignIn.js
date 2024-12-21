@@ -14,6 +14,10 @@ const SignIn = () => {
 
       navigate("/admin");
     } 
+    if (email === "aliyanalpha@gmail.com") {
+
+      navigate("/client-home");
+    } 
     
     
     else {

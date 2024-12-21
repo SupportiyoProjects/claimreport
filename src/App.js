@@ -13,6 +13,7 @@ import AdjusterDashboard from './screens/Adjuster/AdjusterDashboard';
 import { FormProvider } from './screens/context/index';
 import InsuredInformation from '../src/screens/InsuredInformation';
 import ClaimDetails from '../src/screens/ClaimDetails';
+import Home from './screens/Home';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/admin/current-tasks" element={<CurrentTasks />} />
           <Route path="/admin/completed-tasks" element={<CompletedTasks />} />
           <Route path="/admin/allocate-tasks" element={<AllocateTasks />} />
+          <Route path='/client-home' element={<Home/>}/>
           <Route path="/insured-information" element={<InsuredInformation />} />
           <Route path="/claim-details" element={<ClaimDetails />} />
           <Route path="/admin/create-adjuster" element={<CreateAdjuster />} />
