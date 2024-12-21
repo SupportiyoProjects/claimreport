@@ -6,8 +6,8 @@ import Home from './screens/Home';
 import NewReport from './screens/NewReport';
 import CurrentStatus from './screens/CurrentStatus';
 import CompletedReports from './screens/CompletedReports';
-import InsuredInformation from './screens/InsuredInformation';
-import ClaimDetails from './screens/ClaimDetails';
+import InsuredInformation from './Report/InsuredInformation';
+import ClaimDetails from './Report/ClaimDetails';
 import { FormProvider } from './screens/context/index';
 
 const CLERK_PUBLISHABLE_KEY = "pk_test_bWVldC13aGlwcGV0LTMyLmNsZXJrLmFjY291bnRzLmRldiQ";
