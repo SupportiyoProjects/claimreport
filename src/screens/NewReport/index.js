@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import Navbar from '../../components/layout/Navbar';
+// import Navbar from '../../components/layout/navbar';
 import { useNavigate } from 'react-router-dom';
 
 const US_STATES = [

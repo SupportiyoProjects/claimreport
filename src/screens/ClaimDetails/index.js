@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { motion } from 'framer-motion';
@@ -27,6 +28,7 @@ const validationSchema = Yup.object({
 });
 
 export default function ClaimDetails() {
+  const navigate = useNavigate();
   const { insuredData } = useFormData();
   const initialValues = {
     claimNumber: '',
@@ -60,6 +62,7 @@ export default function ClaimDetails() {
 
       await insertClientData(combinedData);
       console.log('Data submitted successfully');
+      navigate('/client-home');
       // You might want to navigate to a success page or show a success message
     } catch (error) {
       console.error('Error submitting data:', error);

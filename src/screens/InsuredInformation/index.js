@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { motion } from 'framer-motion';
-import Navbar from '../../components/layout/Navbar';
+// import Navbar from '../../components/layout/navbar';
 import { useNavigate } from 'react-router-dom';
 import { useFormData } from '../../screens/context/index';
 const US_STATES = [
@@ -150,10 +150,7 @@ export default function InsuredInformation() {
               state: Yup.string().required('State is required'),
               zipCode: Yup.string().required('ZIP code is required'),
               isInspectionAtAddress: Yup.string().required('Please specify if inspection will be at this address'),
-              progress: Yup.number()
-                .min(0, 'Progress must be at least 0')
-                .max(100, 'Progress must be at most 100')
-                .required('Progress is required')
+              
             })}
             onSubmit={handleSubmit}
           >
@@ -193,9 +190,9 @@ export default function InsuredInformation() {
                   </div>
                 </div>
 
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
+                {/* <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
                 <Field name="location" type="text" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
-                <ErrorMessage name="location" component="div" className="text-red-600 text-sm" />
+                <ErrorMessage name="location" component="div" className="text-red-600 text-sm" /> */}
 
                 {/* Property Type Field */}
                 <div>
@@ -230,7 +227,7 @@ export default function InsuredInformation() {
                     )}
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Progress
                     </label>
@@ -242,7 +239,7 @@ export default function InsuredInformation() {
                         'ring-gray-300 focus:ring-indigo-600'
                         } placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6`}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Secondary Phone Number
