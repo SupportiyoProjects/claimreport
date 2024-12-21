@@ -11,8 +11,8 @@ import Tasks from './screens/Adjuster/Tasks';
 import CompletedTasksAdjuster from './screens/Adjuster/CompletedTasks';
 import AdjusterDashboard from './screens/Adjuster/AdjusterDashboard';
 import { FormProvider } from './screens/context/index';
-import InsuredInformation from './Report/InsuredInformation';
-import ClaimDetails from './Report/ClaimDetails';
+import InsuredInformation from '../src/screens/InsuredInformation';
+import ClaimDetails from '../src/screens/ClaimDetails';
 
 
 function App() {
