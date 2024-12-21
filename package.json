@@ -6,13 +6,27 @@
     "@clerk/clerk-react": "^5.20.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
+    "assert": "^2.1.0",
+    "axios": "^1.7.9",
+    "body-parser": "^1.20.3",
+    "browserify-zlib": "^0.2.0",
+    "cors": "^2.8.5",
     "eslint-config-react-app": "^7.0.1",
+    "express": "^4.21.2",
+    "formik": "^2.4.6",
     "framer-motion": "^11.15.0",
+    "https-browserify": "^1.0.0",
+    "mongodb": "^6.12.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.0.2",
     "react-scripts": "^5.0.1",
-    "web-vitals": "^4.2.4"
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.4",
+    "util": "^0.12.5",
+    "web-vitals": "^4.2.4",
+    "yup": "^1.6.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -37,5 +51,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
   }
 }
