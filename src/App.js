@@ -1,30 +1,33 @@
-import { ClerkProvider } from '@clerk/clerk-react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import SignIn from './screens/auth/SignIn';
-import SignUp from './screens/auth/SignUp';
-import Home from './screens/Home';
-import NewReport from './screens/NewReport';
-import CurrentStatus from './screens/CurrentStatus';
-import CompletedReports from './screens/CompletedReports';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import SignIn from './screens/SignIn';
+import AdminDashboard from './screens/admin/AdminDashboard';
+import CurrentTasks from './screens/admin/CurrentTasks';
+import CompletedTasks from './screens/admin/CompletedTasks';
+import AllocateTasks from './screens/admin/AllocateTasks';
+import CreateAdjuster from './screens/admin/CreateAdjuster';
+import Tasks from './screens/Adjuster/Tasks';
+import CompletedTasksAdjuster from './screens/Adjuster/CompletedTasks';
+import AdjusterDashboard from './screens/Adjuster/AdjusterDashboard';
 
-const CLERK_PUBLISHABLE_KEY = "pk_test_bWVldC13aGlwcGV0LTMyLmNsZXJrLmFjY291bnRzLmRldiQ";
 
 function App() {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/new-report" element={<NewReport />} />
-          <Route path="/current-status" element={<CurrentStatus />} />
-          <Route path="/completed-reports" element={<CompletedReports />} />
-          <Route path="/" element={<Navigate to="/sign-in" />} />
-        </Routes>
-      </BrowserRouter>
-    </ClerkProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SignIn />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/current-tasks" element={<CurrentTasks />} />
+        <Route path="/admin/completed-tasks" element={<CompletedTasks />} />
+        <Route path="/admin/allocate-tasks" element={<AllocateTasks />} />
+        <Route path="/admin/create-adjuster" element={<CreateAdjuster />} />
+        <Route path="/adjuster" element={<AdjusterDashboard />}>
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="completed-tasks" element={<CompletedTasksAdjuster />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App; 
+export default App;
