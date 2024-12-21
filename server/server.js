@@ -39,7 +39,7 @@ async function connectToDatabase() {
   }
 }
 
-app.get('/api/Client/count', async (req, res) => {
+app.get('/api/client/count', async (req, res) => {
   try {
     await client.connect();
     const database = client.db("ClaimReports");
