@@ -38,45 +38,41 @@ async function connectToDatabase() {
     process.exit(1); // Exit if cannot connect to database
   }
 }
+connectToDatabase();
 
-app.get('/api/Client/count', async (req, res) => {
+// Endpoint to get total client count
+app.get('/api/client/count', async (req, res) => {
   try {
-    await client.connect();
     const database = client.db("ClaimReports");
     const collection = database.collection("Client");
     
-    const count = await collection.find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    res.json({ count: count.length });
+    const count = await collection.countDocuments(); // Get total count of documents
+    res.json({ count });
   } catch (error) {
     console.error("Error getting client count:", error);
     res.status(500).json({ error: 'Failed to get client count' });
-  } finally {
-    await client.close();
   }
 });
 
 // Add endpoint for specific email count
-app.get('/api/Client/count/:email', async (req, res) => {
-  try {
-    await client.connect();
-    const database = client.db("ClaimReports");
-    const collection = database.collection("Client");
+// app.get('/api/Client/count/:email', async (req, res) => {
+//   try {
+//     await client.connect();
+//     const database = client.db("ClaimReports");
+//     const collection = database.collection("Client");
     
-    const count = await collection.find({
-      "email": req.params.email
-    }).toArray();
+//     const count = await collection.find({
+//       "insured.email": req.params.email
+//     }).toArray();
 
-    res.json({ count: count.length });
-  } catch (error) {
-    console.error("Error getting client count:", error);
-    res.status(500).json({ error: 'Failed to get client count' });
-  } finally {
-    await client.close();
-  }
-});
+//     res.json({ count: count.length });
+//   } catch (error) {
+//     console.error("Error getting client count:", error);
+//     res.status(500).json({ error: 'Failed to get client count' });
+//   } finally {
+//     await client.close();
+//   }
+// });
 
 // API Endpoints
 app.post('/api/insert', async (req, res) => {
@@ -867,24 +863,47 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
       });
     }
   });
+<<<<<<< HEAD
 // app.get('/api/Client/count/:email', async (req, res) => {
+=======
+// Add this new endpoint to get client count
+app.get('/api/client/count  ', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    const count = await collection.countDocuments();
+    res.json({ count });
+  } catch (error) {
+    console.error("Error getting client count:", error);
+    res.status(500).json({ error: 'Failed to get client count' });
+  } finally {
+    await client.close();
+  }
+});
+
+// Endpoint to get client count by email
+// app.get('/api/client/count/:email', async (req, res) => {
+>>>>>>> origin/Final-main
 //   try {
 //     await client.connect();
 //     const database = client.db("ClaimReports");
 //     const collection = database.collection("Client");
     
 //     const count = await collection.countDocuments({
-//       "insured.email": req.params.email
+//       "insured.email": req.params.email // Adjust the field based on your document structure
 //     });
 //     res.json({ count });
 //   } catch (error) {
-//     console.error("Error getting client count:", error);
-//     res.status(500).json({ error: 'Failed to get client count' });
+//     console.error("Error getting client count by email:", error);
+//     res.status(500).json({ error: 'Failed to get client count by email' });
 //   } finally {
 //     await client.close();
 //   }
 // });
 
+<<<<<<< HEAD
 
 
 
@@ -1032,3 +1051,37 @@ app.get('/api/clients', async (req, res) => {
       res.status(500).json({ error: 'Failed to update schedule' });
     }
   });
+=======
+// Endpoint to get client details by email
+app.get('/api/client/details/:email', async (req, res) => {
+  try {
+    await client.connect();
+    const database = client.db("ClaimReports");
+    const collection = database.collection("Client");
+    
+    // Fetch all client details for the specified email
+    const clientDetails = await collection.find({
+      "insured.email": req.params.email
+    }).toArray();
+
+    if (clientDetails.length === 0) {
+      return res.status(404).json({ error: 'No clients found for this email' });
+    }
+
+    // Map through the results to extract claim details
+    const formattedDetails = clientDetails.map(client => ({
+      claimNumber: client.claim.claimNumber,
+      typeOfLoss: client.claim.typeOfLoss,
+      dateOfLoss: client.claim.dateOfLoss,
+      lossDescription: client.claim.lossDescription,
+    }));
+
+    res.json(formattedDetails);
+  } catch (error) {
+    console.error("Error getting client details by email:", error);
+    res.status(500).json({ error: 'Failed to get client details by email' });
+  } finally {
+    await client.close();
+  }
+});
+>>>>>>> origin/Final-main
