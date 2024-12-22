@@ -55,24 +55,24 @@ app.get('/api/client/count', async (req, res) => {
 });
 
 // Add endpoint for specific email count
-app.get('/api/Client/count/:email', async (req, res) => {
-  try {
-    await client.connect();
-    const database = client.db("ClaimReports");
-    const collection = database.collection("Client");
+// app.get('/api/Client/count/:email', async (req, res) => {
+//   try {
+//     await client.connect();
+//     const database = client.db("ClaimReports");
+//     const collection = database.collection("Client");
     
-    const count = await collection.find({
-      "insured.email": req.params.email
-    }).toArray();
+//     const count = await collection.find({
+//       "insured.email": req.params.email
+//     }).toArray();
 
-    res.json({ count: count.length });
-  } catch (error) {
-    console.error("Error getting client count:", error);
-    res.status(500).json({ error: 'Failed to get client count' });
-  } finally {
-    await client.close();
-  }
-});
+//     res.json({ count: count.length });
+//   } catch (error) {
+//     console.error("Error getting client count:", error);
+//     res.status(500).json({ error: 'Failed to get client count' });
+//   } finally {
+//     await client.close();
+//   }
+// });
 
 // API Endpoints
 app.post('/api/insert', async (req, res) => {
@@ -881,19 +881,52 @@ app.get('/api/client/count  ', async (req, res) => {
 });
 
 // Endpoint to get client count by email
-app.get('/api/client/count/:email', async (req, res) => {
+// app.get('/api/client/count/:email', async (req, res) => {
+//   try {
+//     await client.connect();
+//     const database = client.db("ClaimReports");
+//     const collection = database.collection("Client");
+    
+//     const count = await collection.countDocuments({
+//       "insured.email": req.params.email // Adjust the field based on your document structure
+//     });
+//     res.json({ count });
+//   } catch (error) {
+//     console.error("Error getting client count by email:", error);
+//     res.status(500).json({ error: 'Failed to get client count by email' });
+//   } finally {
+//     await client.close();
+//   }
+// });
+
+// Endpoint to get client details by email
+app.get('/api/client/details/:email', async (req, res) => {
   try {
     await client.connect();
     const database = client.db("ClaimReports");
     const collection = database.collection("Client");
     
-    const count = await collection.countDocuments({
-      "insured.email": req.params.email // Adjust the field based on your document structure
-    });
-    res.json({ count });
+    // Fetch all client details for the specified email
+    const clientDetails = await collection.find({
+      "insured.email": req.params.email
+    }).toArray();
+
+    if (clientDetails.length === 0) {
+      return res.status(404).json({ error: 'No clients found for this email' });
+    }
+
+    // Map through the results to extract claim details
+    const formattedDetails = clientDetails.map(client => ({
+      claimNumber: client.claim.claimNumber,
+      typeOfLoss: client.claim.typeOfLoss,
+      dateOfLoss: client.claim.dateOfLoss,
+      lossDescription: client.claim.lossDescription,
+    }));
+
+    res.json(formattedDetails);
   } catch (error) {
-    console.error("Error getting client count by email:", error);
-    res.status(500).json({ error: 'Failed to get client count by email' });
+    console.error("Error getting client details by email:", error);
+    res.status(500).json({ error: 'Failed to get client details by email' });
   } finally {
     await client.close();
   }

@@ -5,27 +5,20 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [totalCount, setTotalCount] = useState(0);
-  const [userCount, setUserCount] = useState(0);
+  const [clientDetails, setClientDetails] = useState([]);
   const email = 'aliyanamir15@gmail.com';
 
-
   useEffect(() => {
-    const fetchTotalCount = async () => {
+    const fetchClientDetails = async () => {
       try {
-        // Fetch total count of clients
-        const response = await axios.get('http://localhost:5000/api/client/count');
-        setTotalCount(response.data.count);
-
-        // Fetch count for specific email
-        const userResponse = await axios.get(`http://localhost:5000/api/client/count/${email}`);
-        setUserCount(userResponse.data.count);
+        const response = await axios.get(`http://localhost:5000/api/Client/details/${email}`);
+        setClientDetails(response.data);
       } catch (error) {
-        console.error("Error fetching total client count:", error);
+        console.error("Error fetching client details:", error);
       }
     };
 
-    fetchTotalCount();
+    fetchClientDetails();
   }, []);
 
   const buttons = [
@@ -50,15 +43,21 @@ export default function Home() {
         </div>
         
         <section className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Existing Reports</h2>
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <p className="text-gray-600">
-              Total reports in the system: {totalCount}
-            </p>
-            <p className="text-gray-600">
-              Your reports: {userCount}
-            </p>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Client Details</h2>
+          {clientDetails.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {clientDetails.map((detail, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md p-4">
+                  <h3 className="text-lg font-semibold">Claim Number: {detail.claimNumber}</h3>
+                  <p className="text-gray-600">Type of Loss: {detail.typeOfLoss}</p>
+                  <p className="text-gray-600">Date of Loss: {detail.dateOfLoss}</p>
+                  <p className="text-gray-600">Description: {detail.lossDescription}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No client details found for this email.</p>
+          )}
         </section>
 
         <div className="grid md:grid-cols-1 gap-6 mt-6">
