@@ -886,29 +886,149 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
 // });
 
 
-app.patch('/api/adjusters/:adjusterId/clients/:clientId/completion-date', async (req, res) => {
-    const { adjusterId, clientId } = req.params;
-    const { completionDate } = req.body;
-  
+
+
+// Add this endpoint to handle scheduling
+app.patch('/api/adjusters/:adjusterId/clients/:clientId/schedule', async (req, res) => {
     try {
-      // Ensure completionDate is a valid date
-      const date = new Date(completionDate);
-      if (isNaN(date.getTime())) {
-        return res.status(400).json({ error: 'Invalid date format' });
-      }
+      const { adjusterId, clientId } = req.params;
+      const { scheduledDate } = req.body;
+  
+      const database = client.db(DB_NAME);
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
   
       const result = await adjustersCollection.updateOne(
-        { _id: new ObjectId(adjusterId), 'clients._id': new ObjectId(clientId) },
-        { $set: { 'clients.$.completionDate': date } }
+        { 
+          "_id": new ObjectId(adjusterId),
+          "clients._id": new ObjectId(clientId)
+        },
+        {
+          $set: {
+            "clients.$.scheduledDate": new Date(scheduledDate)
+          }
+        }
       );
   
-      if (result.matchedCount === 0) {
-        return res.status(404).json({ error: 'Adjuster or Client not found' });
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ error: 'Client or adjuster not found' });
       }
   
-      res.json({ message: 'Completion date updated successfully' });
+      res.json({ message: 'Schedule updated successfully' });
     } catch (error) {
-      console.error("Error updating completion date:", error);
-      res.status(500).json({ error: 'Failed to update completion date' });
+      console.error('Error updating schedule:', error);
+      res.status(500).json({ error: 'Failed to update schedule' });
+    }
+  });
+
+
+  // Add these endpoints to your existing server.js
+
+// Get all clients
+app.get('/api/clients', async (req, res) => {
+    try {
+      await client.connect();
+      const database = client.db(DB_NAME);
+      const collection = database.collection("Client");
+      
+      const clients = await collection.find({}).toArray();
+      res.json(clients);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      res.status(500).json({ error: 'Failed to fetch clients' });
+    }
+  });
+  
+  // Assign client to adjuster
+  app.patch('/api/clients/:clientId/assign', async (req, res) => {
+    try {
+      const { clientId } = req.params;
+      const { adjusterId } = req.body;
+  
+      await client.connect();
+      const database = client.db(DB_NAME);
+      const clientsCollection = database.collection("Client");
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
+  
+      // Update client's assignedTo field
+      await clientsCollection.updateOne(
+        { _id: new ObjectId(clientId) },
+        { $set: { assignedTo: adjusterId } }
+      );
+  
+      // Get updated client data
+      const updatedClient = await clientsCollection.findOne({ _id: new ObjectId(clientId) });
+  
+      // Add client to adjuster's clients array
+      await adjustersCollection.updateOne(
+        { _id: new ObjectId(adjusterId) },
+        { 
+          $push: { 
+            clients: updatedClient
+          }
+        }
+      );
+  
+      res.json({ message: 'Client assigned successfully' });
+    } catch (error) {
+      console.error("Error assigning client:", error);
+      res.status(500).json({ error: 'Failed to assign client' });
+    }
+  });
+  
+  // Remove client from adjuster
+  app.patch('/api/adjusters/:adjusterId/removeClient/:clientId', async (req, res) => {
+    try {
+      const { adjusterId, clientId } = req.params;
+  
+      await client.connect();
+      const database = client.db(DB_NAME);
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
+  
+      await adjustersCollection.updateOne(
+        { _id: new ObjectId(adjusterId) },
+        { 
+          $pull: { 
+            clients: { _id: new ObjectId(clientId) }
+          }
+        }
+      );
+  
+      res.json({ message: 'Client removed successfully' });
+    } catch (error) {
+      console.error("Error removing client:", error);
+      res.status(500).json({ error: 'Failed to remove client' });
+    }
+  });
+  
+  // Schedule client appointment
+  app.patch('/api/adjusters/:adjusterId/clients/:clientId/schedule', async (req, res) => {
+    try {
+      const { adjusterId, clientId } = req.params;
+      const { scheduledDate } = req.body;
+  
+      await client.connect();
+      const database = client.db(DB_NAME);
+      const adjustersCollection = database.collection(ADJUSTERS_COLLECTION);
+  
+      const result = await adjustersCollection.updateOne(
+        { 
+          "_id": new ObjectId(adjusterId),
+          "clients._id": new ObjectId(clientId)
+        },
+        {
+          $set: {
+            "clients.$.scheduledDate": new Date(scheduledDate)
+          }
+        }
+      );
+  
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({ error: 'Client or adjuster not found' });
+      }
+  
+      res.json({ message: 'Schedule updated successfully' });
+    } catch (error) {
+      console.error('Error updating schedule:', error);
+      res.status(500).json({ error: 'Failed to update schedule' });
     }
   });
