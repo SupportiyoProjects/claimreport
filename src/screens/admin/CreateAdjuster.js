@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { supabase } from '../../utils/supabaseClient';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
   const [name, setName] = useState('');
@@ -11,6 +13,7 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateForm = () => {
     if (!name) {
@@ -30,6 +33,14 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
       setError('Phone number is required');
       return false;
     }
+    if (!password) {
+      setError('Password is required');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
     return true;
   };
 
@@ -45,17 +56,42 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
     }
 
     try {
+      // First create the user in Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role: 'adjuster'
+          }
+        }
+      });
+
+      if (authError) throw new Error(authError.message);
+
+      // Then create the adjuster in MongoDB
       const response = await fetch('http://localhost:5000/api/adjusters', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, phone, status, password, progress: 'Initial' }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          status,
+          password, // Note: In production, you might want to handle password storage differently
+          progress: 'Initial',
+          supabaseUserId: authData.user.id
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        // If MongoDB creation fails, delete the Supabase user
+        await supabase.auth.admin.deleteUser(authData.user.id);
         throw new Error(data.error || 'Failed to create adjuster');
       }
 
@@ -73,25 +109,23 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
-        Create Adjuster
-      </h2>
-
+    <div className="p-6 bg-white rounded-lg max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Create New Adjuster</h2>
+      
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm text-center">
+        <div className="mb-4 p-3 bg-red-50 text-red-500 rounded-md">
           {error}
         </div>
       )}
-
+      
       {success && (
-        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-md text-sm text-center">
+        <div className="mb-4 p-3 bg-green-50 text-green-500 rounded-md">
           {success}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Name
           </label>
@@ -99,13 +133,13 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Enter full name"
             disabled={isSubmitting}
           />
         </div>
 
-        <div className="mb-4">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email
           </label>
@@ -113,61 +147,36 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Enter email address"
             disabled={isSubmitting}
           />
         </div>
 
-        <div className="mb-4">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone
+            Phone Number
           </label>
           <PhoneInput
             country={'us'}
             value={phone}
             onChange={setPhone}
             inputStyle={{
-              width: '90%',
-              padding: '10px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              marginLeft: '40px',
+              width: '100%',
+              height: '38px'
             }}
-            buttonStyle={{
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              height: '100%',
-              marginLeft: '0',
-            }}
-            required
             disabled={isSubmitting}
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-
-        <div className="mb-4">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Status
           </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             disabled={isSubmitting}
           >
             <option value="active">Active</option>
@@ -175,23 +184,50 @@ const CreateAdjuster = ({ onClose, onAdjusterCreated }) => {
           </select>
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          {isSubmitting ? (
-            <div className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Creating...
-            </div>
-          ) : (
-            'Create Adjuster'
-          )}
-        </button>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter password"
+              disabled={isSubmitting}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2"
+            >
+              {showPassword ? (
+                <FaEyeSlash className="text-gray-400" />
+              ) : (
+                <FaEye className="text-gray-400" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating...' : 'Create Adjuster'}
+          </button>
+        </div>
       </form>
     </div>
   );

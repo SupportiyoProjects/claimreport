@@ -1,9 +1,13 @@
+import mongoose from 'mongoose';
+
 const adjusterSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: String,
   password: String,
   status: { type: String, enum: ["active", "inactive"], default: "active" },
+  supabaseUserId: { type: String, required: true, unique: true },
+  progress: { type: String, default: 'Initial' },
   clients: [{
     type: new mongoose.Schema({
       insured: {
@@ -35,4 +39,8 @@ const adjusterSchema = new mongoose.Schema({
       completionDate: { type: Date, default: null },
     }),
   }],
-}); 
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.model('Adjuster', adjusterSchema); 

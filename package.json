@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@clerk/clerk-react": "^5.20.4",
+    "@supabase/supabase-js": "^2.47.10",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "assert": "^2.1.0",
