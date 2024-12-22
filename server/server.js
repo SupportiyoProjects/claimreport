@@ -863,7 +863,6 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
       });
     }
   });
-
 // Add this new endpoint to get client count
 app.get('/api/client/count  ', async (req, res) => {
   try {
