@@ -884,3 +884,31 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
 //     await client.close();
 //   }
 // });
+
+
+app.patch('/api/adjusters/:adjusterId/clients/:clientId/completion-date', async (req, res) => {
+    const { adjusterId, clientId } = req.params;
+    const { completionDate } = req.body;
+  
+    try {
+      // Ensure completionDate is a valid date
+      const date = new Date(completionDate);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ error: 'Invalid date format' });
+      }
+  
+      const result = await adjustersCollection.updateOne(
+        { _id: new ObjectId(adjusterId), 'clients._id': new ObjectId(clientId) },
+        { $set: { 'clients.$.completionDate': date } }
+      );
+  
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Adjuster or Client not found' });
+      }
+  
+      res.json({ message: 'Completion date updated successfully' });
+    } catch (error) {
+      console.error("Error updating completion date:", error);
+      res.status(500).json({ error: 'Failed to update completion date' });
+    }
+  });

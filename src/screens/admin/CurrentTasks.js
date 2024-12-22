@@ -24,7 +24,7 @@ const CurrentTasks = () => {
 
     fetchData();
   }, []);
-
+  
 //   const handleAdjusterSelect = async (clientId, adjusterId) => {
 //     try {
 //       const clientData = clients.find(client => client._id === clientId);

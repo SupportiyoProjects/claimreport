@@ -12,7 +12,23 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+.react-calendar {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
 
+.react-calendar__tile--active {
+  background: #4f46e5 !important;
+  color: white;
+}
+
+.react-calendar__tile--now {
+  background: #e0e7ff;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

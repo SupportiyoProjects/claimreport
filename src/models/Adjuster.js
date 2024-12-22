@@ -4,7 +4,35 @@ const adjusterSchema = new mongoose.Schema({
   phone: String,
   password: String,
   status: { type: String, enum: ["active", "inactive"], default: "active" },
-  clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "Client" }], // Reference to Client model
-});
-
-const Adjuster = mongoose.model('Adjuster', adjusterSchema); 
+  clients: [{
+    type: new mongoose.Schema({
+      insured: {
+        insuredFirstName: String,
+        insuredLastName: String,
+        propertyType: String,
+        primaryPhone: String,
+        secondaryPhone: String,
+        email: String,
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        country: String,
+        isInspectionAtAddress: String,
+        addPOC: Boolean,
+        progress: String,
+      },
+      claim: {
+        claimNumber: String,
+        dateOfLoss: Date,
+        typeOfLoss: String,
+        lossDescription: String,
+        carrierEmail: String,
+        clientInstructions: String,
+        addBillingContact: Boolean,
+        specialInstructions: Object,
+      },
+      completionDate: { type: Date, default: null },
+    }),
+  }],
+}); 
