@@ -863,9 +863,7 @@ app.patch('/api/adjusters/:adjusterId/clients/:clientId/progress', async (req, r
       });
     }
   });
-<<<<<<< HEAD
 // app.get('/api/Client/count/:email', async (req, res) => {
-=======
 // Add this new endpoint to get client count
 app.get('/api/client/count  ', async (req, res) => {
   try {
@@ -885,7 +883,6 @@ app.get('/api/client/count  ', async (req, res) => {
 
 // Endpoint to get client count by email
 // app.get('/api/client/count/:email', async (req, res) => {
->>>>>>> origin/Final-main
 //   try {
 //     await client.connect();
 //     const database = client.db("ClaimReports");
@@ -903,7 +900,6 @@ app.get('/api/client/count  ', async (req, res) => {
 //   }
 // });
 
-<<<<<<< HEAD
 
 
 
@@ -1051,7 +1047,6 @@ app.get('/api/clients', async (req, res) => {
       res.status(500).json({ error: 'Failed to update schedule' });
     }
   });
-=======
 // Endpoint to get client details by email
 app.get('/api/client/details/:email', async (req, res) => {
   try {
@@ -1084,4 +1079,3 @@ app.get('/api/client/details/:email', async (req, res) => {
     await client.close();
   }
 });
->>>>>>> origin/Final-main

@@ -29,55 +29,48 @@ const SignIn = () => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First, sign in with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (data.user) {
-        const response = await fetch("http://localhost:5000/api/adjusters/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
+      if (authData.user) {
+        try {
+          // Then try to fetch adjuster data
+          const response = await fetch("http://localhost:5000/api/adjusters/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+              email,
+              password,
+              supabaseUserId: authData.user.id // Add this line
+            }),
+          });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch adjuster data");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch adjuster data");
+          }
+
+          const adjusterData = await response.json();
+          
+          if (!adjusterData) {
+            throw new Error("No adjuster data found");
+          }
+
+          navigate("/adjuster", { state: adjusterData });
+        } catch (fetchError) {
+          console.error("Fetch error:", fetchError);
+          throw new Error("Failed to fetch adjuster data. Please try again.");
         }
-
-        const adjusterData = await response.json();
-        navigate("/adjuster", { state: adjusterData });
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setIsLoading(true);
-  
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-  
-      if (error) throw error;
-  
-      setSuccess("Password reset link sent to your email!");
-      setTimeout(() => {
-        setShowResetModal(false);
-        setResetEmail("");
-      }, 2000);
-    } catch (err) {
+      console.error("Login error:", err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -85,7 +78,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-600">
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-2xl shadow-2xl transform transition-all hover:scale-[1.01]">
         <div className="text-center mb-8">
           <FaUserCircle className="mx-auto text-6xl text-indigo-600 mb-4" />
@@ -107,7 +100,7 @@ const SignIn = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <button
                 type="button"
@@ -116,7 +109,7 @@ const SignIn = () => {
               >
                 Forgot password?
               </button>
-            </div>
+            </div> */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
