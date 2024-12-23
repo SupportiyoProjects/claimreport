@@ -5,7 +5,6 @@ import AdminDashboard from './screens/admin/AdminDashboard';
 import CurrentTasks from './screens/admin/CurrentTasks';
 import CompletedTasks from './screens/admin/CompletedTasks';
 import AllocateTasks from './screens/admin/AllocateTasks';
-
 import CreateAdjuster from './screens/admin/CreateAdjuster';
 import Tasks from './screens/Adjuster/Tasks';
 import CompletedTasksAdjuster from './screens/Adjuster/CompletedTasks';
@@ -14,7 +13,7 @@ import { FormProvider } from './screens/context/index';
 import InsuredInformation from '../src/screens/InsuredInformation';
 import ClaimDetails from '../src/screens/ClaimDetails';
 import Home from './screens/Home';
-
+import ResetPassword from './screens/ResetPassword';
 
 function App() {
   return (
@@ -34,10 +33,11 @@ function App() {
             <Route path="tasks" element={<Tasks />} />
             <Route path="completed-tasks" element={<CompletedTasksAdjuster />} />
           </Route>
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </FormProvider>
     </BrowserRouter>
   );
-}
+} 
 
 export default App;
